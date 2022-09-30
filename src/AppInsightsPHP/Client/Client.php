@@ -11,6 +11,7 @@ use ApplicationInsights\Telemetry_Context;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 final class Client
 {
@@ -26,7 +27,10 @@ final class Client
         Telemetry_Client $client,
         Configuration $configuration,
         FailureCache $failureCache,
-        LoggerInterface $fallbackLogger
+        LoggerInterface $fallbackLogger,
+        private $application,
+        private $environment,
+        private $exe
     ) {
         $this->client = $client;
         $this->configuration = $configuration;
@@ -173,6 +177,7 @@ final class Client
         }
 
         TelemetryData::request((string) $request->getName(), (string) $request->getUrl(), $properties, $measurements)->validate();
+        dd($this->application, $this->environment, $this->exe);
         $this->client->endRequest($request, $durationInMilliseconds, $httpResponseCode, $isSuccessful, $properties, $measurements);
     }
 
@@ -200,5 +205,15 @@ final class Client
 
         TelemetryData::dependency($name, $type, $commandName, $properties)->validate();
         $this->client->trackDependency($name, $type, $commandName, $startTime, $durationInMilliseconds, $isSuccessful, $resultCode, $properties);
+    }
+
+    private function addAdditionalProperties(array $properties)
+    {
+        $properties['application'] = '';
+        $properties['environment'] = '';
+        $properties['exe'] = '';
+        $properties['requestId'] = '';
+
+        return $properties;
     }
 }
