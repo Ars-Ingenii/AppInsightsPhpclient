@@ -22,7 +22,10 @@ final class ClientFactory implements ClientFactoryInterface
         string $instrumentationKey,
         Configuration $configuration,
         CacheInterface $failureCache,
-        LoggerInterface $fallbackLogger
+        LoggerInterface $fallbackLogger,
+        private $application,
+        private $environment,
+        private $exe
     ) {
         $this->instrumentationKey = $instrumentationKey;
         $this->configuration = $configuration;
@@ -39,7 +42,10 @@ final class ClientFactory implements ClientFactoryInterface
             $client,
             $this->configuration,
             new FailureCache($this->failureCache),
-            $this->fallbackLogger
+            $this->fallbackLogger,
+            $this->application,
+            $this->environment,
+            $this->exe
         );
     }
 }
